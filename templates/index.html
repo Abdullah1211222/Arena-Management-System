@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ARENA Tournament System</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-trophy logo-icon"></i>
+                <span>ARENA</span>
+            </a>
+            <div class="nav-links">
+                {% if session.username %}
+                    <a href="/my-tournaments" class="btn"><i class="fas fa-trophy"></i> My Tournaments</a>
+                    {% if session.role == 'league_owner' %}
+                    <a href="/create_tournament" class="btn"><i class="fas fa-plus"></i> Create Tournament</a>
+                    <a href="/create_sponsored_tournament" class="btn btn-primary"><i class="fas fa-star"></i> Sponsored</a>
+                    {% endif %}
+                    {% if session.role == 'advertiser' %}
+                    <a href="/ads" class="btn btn-primary"><i class="fas fa-ad"></i> Ads</a>
+                    {% endif %}
+                    <a href="/logout" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                {% else %}
+                    <a href="/login" class="btn"><i class="fas fa-sign-in-alt"></i> Login</a>
+                    <a href="/register" class="btn btn-primary"><i class="fas fa-user-plus"></i> Register</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1 class="hero-title">ARENA TOURNAMENT SYSTEM</h1>
+            <p class="hero-subtitle">
+                Compete in the world's best esports tournaments. Join thousands of players, 
+                win amazing prizes, and climb the leaderboards!
+            </p>
+            
+            <!-- Banner Ads -->
+            {% if banner_ads %}
+            <div style="max-width: 728px; margin: 30px auto;">
+                <div class="card" style="padding: 10px; background: linear-gradient(135deg, rgba(102,126,234,0.2) 0%, rgba(118,75,162,0.2) 100%);">
+                    <div style="text-align: center; color: var(--gray); font-size: 0.9rem; margin-bottom: 5px;">
+                        <i class="fas fa-ad"></i> Advertisement
+                    </div>
+                    {% for ad in banner_ads[:1] %}
+                    <a href="/ad/click/{{ ad.id }}?redirect_url={{ ad.redirect_url|urlencode }}" target="_blank" 
+                       style="text-decoration: none; color: inherit; display: block;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 20px; padding: 10px;">
+                            <strong>{{ ad.title }}</strong>
+                            <span style="color: var(--accent); font-size: 0.9rem;">{{ ad.description[:50] }}...</span>
+                            <span class="btn btn-primary btn-small">Learn More <i class="fas fa-external-link-alt"></i></span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+            
+            <div style="margin-top: 40px;">
+                <a href="#tournaments" class="btn btn-primary btn-large">
+                    <i class="fas fa-gamepad"></i> Browse Tournaments
+                </a>
+                {% if not session.username %}
+                <form action="/quick_register" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-secondary btn-large">
+                        <i class="fas fa-bolt"></i> Quick Register
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div style="display: grid; grid-template-columns: 1fr 300px; gap: 30px; margin-top: 50px;">
+            <!-- Left Column - Tournaments -->
+            <div>
+                <!-- Sponsored Tournaments Section -->
+                {% if sponsored_tournaments %}
+                <div class="card mb-3">
+                    <div class="card-header">
+                        <h2><i class="fas fa-crown text-accent"></i> Sponsored Tournaments</h2>
+                        <span class="badge badge-warning"><i class="fas fa-star"></i> Featured</span>
+                    </div>
+                    <div class="tournament-grid">
+                        {% for tournament in sponsored_tournaments %}
+                        <div class="tournament-card" style="border: 2px solid var(--accent);">
+                            <div class="tournament-header">
+                                <h3 style="margin: 0; color: white;">{{ tournament.name }}</h3>
+                                <div>
+                                    <span class="badge badge-accent" style="background: var(--accent);">
+                                        <i class="fas fa-crown"></i> Sponsored
+                                    </span>
+                                    {% if tournament.sponsor_name %}
+                                    <span class="badge" style="background: rgba(255,255,255,0.2); margin-left: 5px;">
+                                        {{ tournament.sponsor_name }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="tournament-body">
+                                <div class="tournament-info">
+                                    <div class="info-item">
+                                        <i class="fas fa-gamepad"></i>
+                                        <div>
+                                            <strong>Game</strong>
+                                            <div>{{ tournament.game }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-users"></i>
+                                        <div>
+                                            <strong>Max Players</strong>
+                                            <div>{{ tournament.max_players }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-user"></i>
+                                        <div>
+                                            <strong>Organizer</strong>
+                                            <div>{{ tournament.creator_name }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                        <div>
+                                            <strong>Prize Pool</strong>
+                                            <div>${{ "%.2f"|format(tournament.ad_budget * 0.3) }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tournament-footer">
+                                <a href="/tournament/{{ tournament.id }}" class="btn btn-block btn-primary">
+                                    <i class="fas fa-eye"></i> View Details
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- All Tournaments -->
+                <div class="card" id="tournaments">
+                    <div class="card-header">
+                        <h2><i class="fas fa-list"></i> All Tournaments</h2>
+                        <span class="badge badge-primary">{{ tournaments|length }} Active</span>
+                    </div>
+                    
+                    {% if tournaments %}
+                    <div class="tournament-grid">
+                        {% for tournament in tournaments %}
+                        <div class="tournament-card">
+                            <div class="tournament-header">
+                                <h3 style="margin: 0; color: white;">{{ tournament.name }}</h3>
+                                <span class="badge {% if tournament.is_sponsored %}badge-warning{% else %}badge-primary{% endif %}">
+                                    {% if tournament.is_sponsored %}<i class="fas fa-crown"></i>{% endif %}
+                                    {{ tournament.status or 'announced' }}
+                                </span>
+                            </div>
+                            <div class="tournament-body">
+                                <div class="tournament-info">
+                                    <div class="info-item">
+                                        <i class="fas fa-gamepad"></i>
+                                        <div>
+                                            <strong>Game</strong>
+                                            <div>{{ tournament.game }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-users"></i>
+                                        <div>
+                                            <strong>Max Players</strong>
+                                            <div>{{ tournament.max_players }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="info-item">
+                                        <i class="fas fa-user"></i>
+                                        <div>
+                                            <strong>Organizer</strong>
+                                            <div>{{ tournament.creator_name }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tournament-footer">
+                                <a href="/tournament/{{ tournament.id }}" class="btn btn-block">
+                                    <i class="fas fa-eye"></i> View Tournament
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-trophy empty-state-icon"></i>
+                        <h3>No Tournaments Available</h3>
+                        <p>Be the first to create a tournament!</p>
+                        {% if session.role == 'league_owner' %}
+                        <a href="/create_tournament" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Create Tournament
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right Column - Sidebar with Ads -->
+            <div>
+                <!-- User Stats Card -->
+                {% if session.username %}
+                <div class="card mb-3">
+                    <h3><i class="fas fa-user"></i> Welcome, {{ session.username }}!</h3>
+                    <p style="color: var(--gray); margin-bottom: 15px;">
+                        {{ session.role|title }} Account
+                    </p>
+                    <a href="/my-tournaments" class="btn btn-block mb-1">
+                        <i class="fas fa-trophy"></i> My Tournaments
+                    </a>
+                    {% if session.role == 'league_owner' %}
+                    <a href="/create_tournament" class="btn btn-primary btn-block mb-1">
+                        <i class="fas fa-plus"></i> Create Tournament
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- Popular Games -->
+                <div class="card mb-3">
+                    <h3><i class="fas fa-fire"></i> Popular Games</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px;">
+                        {% for game in popular_games %}
+                        <a href="#" class="game-tag">{{ game }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Sidebar Ads -->
+                {% if sidebar_ads %}
+                <div class="card mb-3">
+                    <div style="text-align: center; color: var(--gray); font-size: 0.9rem; margin-bottom: 15px;">
+                        <i class="fas fa-ad"></i> Sponsored Content
+                    </div>
+                    
+                    {% for ad in sidebar_ads %}
+                    <div style="margin-bottom: 20px; padding: 15px; border: 1px solid rgba(102,126,234,0.3); border-radius: 10px;">
+                        <a href="/ad/click/{{ ad.id }}?redirect_url={{ ad.redirect_url|urlencode }}" target="_blank" 
+                           style="text-decoration: none; color: inherit;">
+                            {% if ad.image_url %}
+                            <div style="width: 100%; height: 150px; overflow: hidden; border-radius: 8px; margin-bottom: 10px;">
+                                <img src="{{ ad.image_url }}" alt="{{ ad.title }}" 
+                                     style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            {% endif %}
+                            <strong>{{ ad.title }}</strong>
+                            <p style="color: var(--gray); font-size: 0.9rem; margin: 10px 0;">
+                                {{ ad.description[:80] }}{% if ad.description|length > 80 %}...{% endif %}
+                            </p>
+                            <div class="btn btn-primary btn-block btn-small">
+                                Learn More <i class="fas fa-external-link-alt"></i>
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Ad Stats -->
+                <div class="card">
+                    <h3><i class="fas fa-chart-line"></i> Platform Stats</h3>
+                    <div style="margin-top: 15px;">
+                        <div class="info-item mb-2">
+                            <i class="fas fa-trophy"></i>
+                            <div>
+                                <strong>Active Tournaments</strong>
+                                <div>{{ tournaments|length }}</div>
+                            </div>
+                        </div>
+                        <div class="info-item mb-2">
+                            <i class="fas fa-ad"></i>
+                            <div>
+                                <strong>Active Ads</strong>
+                                <div>{{ ad_stats.total_ads or 0 }}</div>
+                            </div>
+                        </div>
+                        <div class="info-item mb-2">
+                            <i class="fas fa-eye"></i>
+                            <div>
+                                <strong>Ad Impressions</strong>
+                                <div>{{ "{:,}".format(ad_stats.total_impressions or 0) }}</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-mouse-pointer"></i>
+                            <div>
+                                <strong>Total Clicks</strong>
+                                <div>{{ "{:,}".format(ad_stats.total_clicks or 0) }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="container" style="position: fixed; top: 100px; right: 20px; z-index: 1000; max-width: 400px;">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ 'success' if category == 'success' else 'error' if category == 'error' else 'info' }}">
+                <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+</body>
+</html>

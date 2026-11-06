@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ad Management - ARENA</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-trophy logo-icon"></i>
+                <span>ARENA Ads</span>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="btn"><i class="fas fa-home"></i> Home</a>
+                <a href="/ads/create" class="btn btn-primary"><i class="fas fa-plus"></i> New Ad</a>
+                <a href="/logout" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="padding-top: 100px;">
+        <div class="card">
+            <h1><i class="fas fa-ad"></i> Advertisement Management</h1>
+            <p style="color: #a0aec0; margin-bottom: 30px;">
+                Manage your advertisements and track performance
+            </p>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ stats.total_ads or 0 }}</div>
+                    <div>Total Ads</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ "{:,}".format(stats.total_impressions or 0) }}</div>
+                    <div>Impressions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ "{:,}".format(stats.total_clicks or 0) }}</div>
+                    <div>Clicks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${{ "%.2f"|format(stats.total_budget or 0) }}</div>
+                    <div>Total Budget</div>
+                </div>
+            </div>
+
+            <!-- Ads List -->
+            <div style="margin-top: 40px;">
+                <h2>Your Advertisements</h2>
+                {% if ads %}
+                <div class="tournament-grid">
+                    {% for ad in ads %}
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <h3 style="margin: 0 0 10px 0;">{{ ad.title }}</h3>
+                                <span class="badge {% if ad.is_active %}badge-success{% else %}badge-danger{% endif %}">
+                                    {% if ad.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                            </div>
+                            <button onclick="toggleAd({{ ad.id }})" class="btn btn-small {% if ad.is_active %}btn-danger{% else %}btn-success{% endif %}">
+                                {% if ad.is_active %}<i class="fas fa-pause"></i>{% else %}<i class="fas fa-play"></i>{% endif %}
+                            </button>
+                        </div>
+                        
+                        <p style="color: #a0aec0; margin: 15px 0;">{{ ad.description }}</p>
+                        
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 15px 0;">
+                            <div class="info-item">
+                                <i class="fas fa-eye"></i>
+                                <div>
+                                    <strong>Impressions</strong>
+                                    <div>{{ ad.impressions }}</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-mouse-pointer"></i>
+                                <div>
+                                    <strong>Clicks</strong>
+                                    <div>{{ ad.clicks }}</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-bullseye"></i>
+                                <div>
+                                    <strong>Category</strong>
+                                    <div>{{ ad.category }}</div>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <div>
+                                    <strong>Budget</strong>
+                                    <div>${{ "%.2f"|format(ad.budget) }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <a href="/ads/analytics/{{ ad.id }}" class="btn btn-outline" style="flex: 1;">
+                                <i class="fas fa-chart-line"></i> Analytics
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-ad empty-state-icon"></i>
+                    <h3>No Advertisements Yet</h3>
+                    <p>Create your first ad campaign to get started.</p>
+                    <a href="/ads/create" class="btn btn-primary" style="margin-top: 20px;">
+                        <i class="fas fa-plus-circle"></i> Create New Ad
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+    function toggleAd(adId) {
+        fetch(`/ads/toggle/${adId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                }
+            });
+    }
+    </script>
+</body>
+</html>

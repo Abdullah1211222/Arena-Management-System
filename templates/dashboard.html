@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - ARENA</title>
+    <style>
+        body { font-family: Arial; margin: 0; background: #f8f9fa; }
+        .navbar { background: #343a40; color: white; padding: 15px 30px; }
+        .navbar a { color: white; margin-right: 20px; text-decoration: none; }
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .welcome { background: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .card h3 { color: #333; margin-top: 0; }
+        .btn { display: inline-block; background: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin: 5px; }
+        .btn:hover { background: #0056b3; }
+        .btn-success { background: #28a745; }
+        .btn-success:hover { background: #218838; }
+        .tournament-list { list-style: none; padding: 0; }
+        .tournament-item { border-left: 4px solid #007bff; padding: 15px; margin: 10px 0; background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <a href="/">ARENA</a>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/">Tournaments</a>
+        <a href="/logout" style="float: right;">Logout ({{ session.username }})</a>
+    </div>
+    
+    <div class="container">
+        <div class="welcome">
+            <h1>Welcome, {{ session.username }}!</h1>
+            <p>Role: <strong>{{ session.role|upper }}</strong> | User ID: {{ session.user_id }}</p>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="card" style="background: {% if category == 'error' %}#f8d7da{% else %}#d4edda{% endif %};">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <div class="cards">
+            <!-- Quick Stats -->
+            <div class="card">
+                <h3>📊 Quick Stats</h3>
+                <p>Account created: Recently</p>
+                <p>Role: {{ session.role }}</p>
+                {% if session.role == 'player' %}
+                    <p>Tournaments applied: {{ applications|length }}</p>
+                {% elif session.role == 'league_owner' %}
+                    <p>Tournaments created: {{ my_tournaments|length }}</p>
+                {% endif %}
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="card">
+                <h3>⚡ Quick Actions</h3>
+                <a href="/" class="btn">Browse Tournaments</a>
+                {% if session.role == 'league_owner' %}
+                    <a href="/create_tournament" class="btn btn-success">Create Tournament</a>
+                {% endif %}
+                {% if session.role == 'player' %}
+                    <a href="/" class="btn">Apply to Tournament</a>
+                {% endif %}
+                <a href="#" class="btn">Edit Profile</a>
+            </div>
+        </div>
+<!-- Auto-Joined Tournaments -->
+{% if session.role == 'player' and applications %}
+<div class="card" style="margin-top: 30px; border-left: 5px solid #28a745;">
+    <h3>✅ Auto-Joined Tournaments ({{ applications|length }})</h3>
+    <p>You were automatically registered to these tournaments:</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+        {% for app in applications %}
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+            <strong>{{ app.name }}</strong><br>
+            <small>{{ app.game }}</small><br>
+            <span style="color: {% if app.app_status == 'accepted' %}green{% else %}orange{% endif %};">
+                {{ app.app_status|upper }}
+            </span><br>
+            <small>Applied: {{ app.applied_at[:10] }}</small><br>
+            <a href="/tournament/{{ app.id }}" class="btn" style="padding: 5px 10px; font-size: 12px;">View</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Recommended Tournaments -->
+{% if recommended_tournaments %}
+<div class="card" style="margin-top: 30px; background: #e7f3ff;">
+    <h3>🎯 Recommended For You</h3>
+    <p>Based on your preferences, you might like:</p>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px;">
+        {% for t in recommended_tournaments %}
+        <div style="background: white; padding: 15px; border-radius: 5px; border: 1px solid #007bff;">
+            <strong>{{ t.name }}</strong><br>
+            <small>{{ t.game }}</small><br>
+            <span>Players: {{ t.player_count }}/{{ t.max_players }}</span><br>
+            <a href="/tournament/{{ t.id }}" class="btn" style="padding: 5px 10px; font-size: 12px;">Join Now</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+        
+        <!-- Player Applications -->
+        {% if session.role == 'player' and applications %}
+        <div class="card" style="margin-top: 30px;">
+            <h3>📋 Your Applications</h3>
+            <ul class="tournament-list">
+                {% for app in applications %}
+                <li class="tournament-item">
+                    <strong>{{ app.name }}</strong><br>
+                    Game: {{ app.game }} | Status: 
+                    <span style="color: {% if app.status == 'accepted' %}green{% elif app.status == 'rejected' %}red{% else %}orange{% endif %};">
+                        {{ app.status|upper }}
+                    </span>
+                    <br>
+                    <a href="/tournament/{{ app.id }}" class="btn">View Tournament</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <!-- League Owner Tournaments -->
+        {% if session.role == 'league_owner' and my_tournaments %}
+        <div class="card" style="margin-top: 30px;">
+            <h3>🏆 Your Tournaments</h3>
+            <ul class="tournament-list">
+                {% for t in my_tournaments %}
+                <li class="tournament-item">
+                    <strong>{{ t.name }}</strong><br>
+                    Game: {{ t.game }} | Players: {{ t.max_players }}<br>
+                    Status: {{ t.status }} | Created: {{ t.created_at[:10] }}
+                    <br>
+                    <a href="/tournament/{{ t.id }}" class="btn">Manage</a>
+                    <a href="#" class="btn">Edit</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <!-- All Tournaments -->
+        <div class="card" style="margin-top: 30px;">
+            <h3>🎮 All Tournaments</h3>
+            <p><a href="/" class="btn">View All Tournaments →</a></p>
+            <p>There are {{ all_tournaments|length }} tournaments in ARENA.</p>
+        </div>
+    </div>
+</body>
+</html>

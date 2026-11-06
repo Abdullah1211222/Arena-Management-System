@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - ARENA</title>
+    <style>
+        body { font-family: Arial; max-width: 400px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        input { width: 100%; padding: 10px; margin-top: 5px; }
+        button { background: #28a745; color: white; padding: 10px 20px; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Login to ARENA</h1>
+    
+    <form method="POST">
+        <div class="form-group">
+            <label>Username:</label>
+            <input type="text" name="username" required>
+        </div>
+        
+        <div class="form-group">
+            <label>Password:</label>
+            <input type="password" name="password" required>
+        </div>
+        
+        <button type="submit">Login</button>
+    </form>
+    
+    <p>Test accounts:</p>
+    <ul>
+        <li>admin / admin123 (Operator)</li>
+        <li>league1 / league123 (League Owner)</li>
+        <li>player1 / player123 (Player)</li>
+    </ul>
+    
+    <p>Don't have an account? <a href="/register">Register</a></p>
+    <p><a href="/">Back to Home</a></p>
+</body>
+</html>

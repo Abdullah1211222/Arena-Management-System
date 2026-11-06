@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - ARENA</title>
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        /* Back Button */
+        .back-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .back-button a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .back-button a:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(-5px);
+        }
+
+        /* Auth Card */
+        .auth-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Header */
+        .auth-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo i {
+            font-size: 2.5rem;
+            color: #f39c12;
+        }
+
+        .logo span {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .auth-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .auth-header p {
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+
+        /* Form Container */
+        .form-container {
+            padding: 40px;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group label i {
+            color: #667eea;
+            width: 20px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-control::placeholder {
+            color: #95a5a6;
+        }
+
+        /* Role Selection */
+        .role-selection {
+            margin: 25px 0;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .role-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .role-option {
+            position: relative;
+        }
+
+        .role-option input[type="radio"] {
+            display: none;
+        }
+
+        .role-option label {
+            display: block;
+            padding: 20px 15px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .role-option label:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+
+        .role-option input[type="radio"]:checked + label {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .role-icon {
+            display: block;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        /* Game Preferences */
+        .game-preferences {
+            margin: 25px 0;
+        }
+
+        .game-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .game-tag {
+            position: relative;
+        }
+
+        .game-tag input[type="checkbox"] {
+            display: none;
+        }
+
+        .game-tag label {
+            display: block;
+            padding: 10px 20px;
+            background: #e9ecef;
+            border: 2px solid #dee2e6;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .game-tag label:hover {
+            background: #dee2e6;
+        }
+
+        .game-tag input[type="checkbox"]:checked + label {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Login Link */
+        .login-link {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            color: #7f8c8d;
+        }
+
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Features List */
+        .features-list {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .features-list h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .features-list ul {
+            list-style: none;
+        }
+
+        .features-list li {
+            margin-bottom: 10px;
+            padding-left: 25px;
+            position: relative;
+            color: #495057;
+        }
+
+        .features-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #2ecc71;
+            font-weight: bold;
+        }
+
+        /* Quick Info */
+        .quick-info {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #3498db;
+        }
+
+        .quick-info h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quick-info p {
+            color: #495057;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .form-container {
+                padding: 30px 20px;
+            }
+            
+            .auth-header {
+                padding: 30px 20px;
+            }
+            
+            .role-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .game-tags {
+                justify-content: center;
+            }
+        }
+
+        /* Form Validation */
+        .form-control.error {
+            border-color: #e74c3c;
+            background: #fdf2f2;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-control.error + .error-message {
+            display: block;
+        }
+
+        /* Password Strength */
+        .password-strength {
+            margin-top: 5px;
+            height: 4px;
+            background: #e9ecef;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .strength-bar {
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak { background: #e74c3c; }
+        .strength-medium { background: #f39c12; }
+        .strength-strong { background: #2ecc71; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Back Button -->
+    <div class="back-button">
+        <a href="/">
+            <i class="fas fa-arrow-left"></i>
+            Back to Home
+        </a>
+    </div>
+
+    <div class="container">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="logo">
+                    <i class="fas fa-trophy"></i>
+                    <span>ARENA</span>
+                </div>
+                <h1>Join the Arena</h1>
+                <p>Create your account and start competing today</p>
+            </div>
+
+            <!-- Form -->
+            <div class="form-container">
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category if category != 'message' else 'info' }}">
+                                <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'error' %}exclamation-circle{% else %}info-circle{% endif %}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Registration Form -->
+                <form method="POST" id="registerForm" onsubmit="return validateForm()">
+                    <!-- Username -->
+                    <div class="form-group">
+                        <label for="username">
+                            <i class="fas fa-user"></i>
+                            Username *
+                        </label>
+                        <input type="text" 
+                               id="username" 
+                               name="username" 
+                               class="form-control" 
+                               placeholder="Choose your gaming username" 
+                               required
+                               minlength="3"
+                               maxlength="20">
+                        <div class="error-message" id="usernameError">
+                            Username must be 3-20 characters (letters, numbers, underscores)
+                        </div>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label for="email">
+                            <i class="fas fa-envelope"></i>
+                            Email Address
+                        </label>
+                        <input type="email" 
+                               id="email" 
+                               name="email" 
+                               class="form-control" 
+                               placeholder="your.email@example.com">
+                        <div class="error-message" id="emailError">
+                            Please enter a valid email address
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label for="password">
+                            <i class="fas fa-lock"></i>
+                            Password *
+                        </label>
+                        <input type="password" 
+                               id="password" 
+                               name="password" 
+                               class="form-control" 
+                               placeholder="Create a strong password" 
+                               required
+                               minlength="6">
+                        <div class="password-strength">
+                            <div class="strength-bar" id="strengthBar"></div>
+                        </div>
+                        <div class="error-message" id="passwordError">
+                            Password must be at least 6 characters
+                        </div>
+                    </div>
+
+                    <!-- Confirm Password -->
+                    <div class="form-group">
+                        <label for="confirmPassword">
+                            <i class="fas fa-lock"></i>
+                            Confirm Password *
+                        </label>
+                        <input type="password" 
+                               id="confirmPassword" 
+                               name="confirmPassword" 
+                               class="form-control" 
+                               placeholder="Re-enter your password" 
+                               required>
+                        <div class="error-message" id="confirmPasswordError">
+                            Passwords do not match
+                        </div>
+                    </div>
+
+                    <!-- Role Selection -->
+                    <div class="role-selection">
+                        <label style="color: #2c3e50; margin-bottom: 15px;">
+                            <i class="fas fa-user-tag"></i>
+                            Select Your Role *
+                        </label>
+                        <div class="role-options">
+                            <!-- Player -->
+                            <div class="role-option">
+                                <input type="radio" id="role_player" name="role" value="player" checked>
+                                <label for="role_player">
+                                    <i class="fas fa-gamepad role-icon"></i>
+                                    Player
+                                    <small style="display: block; font-size: 0.8rem; opacity: 0.8; margin-top: 5px;">
+                                        Join tournaments
+                                    </small>
+                                </label>
+                            </div>
+
+                            <!-- League Owner -->
+                            <div class="role-option">
+                                <input type="radio" id="role_league_owner" name="role" value="league_owner">
+                                <label for="role_league_owner">
+                                    <i class="fas fa-crown role-icon"></i>
+                                    League Owner
+                                    <small style="display: block; font-size: 0.8rem; opacity: 0.8; margin-top: 5px;">
+                                        Create tournaments
+                                    </small>
+                                </label>
+                            </div>
+
+                            <!-- Spectator -->
+                            <div class="role-option">
+                                <input type="radio" id="role_spectator" name="role" value="spectator">
+                                <label for="role_spectator">
+                                    <i class="fas fa-eye role-icon"></i>
+                                    Spectator
+                                    <small style="display: block; font-size: 0.8rem; opacity: 0.8; margin-top: 5px;">
+                                        Watch matches
+                                    </small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game Preferences -->
+                    <div class="game-preferences">
+                        <label style="color: #2c3e50; margin-bottom: 15px;">
+                            <i class="fas fa-gamepad"></i>
+                            Favorite Games (Optional)
+                        </label>
+                        <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 10px;">
+                            Select games you're interested in. We'll recommend tournaments accordingly.
+                        </p>
+                        <div class="game-tags">
+                            {% for game in popular_games %}
+                            <div class="game-tag">
+                                <input type="checkbox" id="game_{{ loop.index }}" name="game_preferences" value="{{ game }}">
+                                <label for="game_{{ loop.index }}">{{ game }}</label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account
+                    </button>
+                </form>
+
+                <!-- Login Link -->
+                <div class="login-link">
+                    Already have an account? 
+                    <a href="/login">Sign in here</a>
+                </div>
+
+                <!-- Features List -->
+                <div class="features-list">
+                    <h3><i class="fas fa-star"></i> Why Join ARENA?</h3>
+                    <ul>
+                        <li>Compete in tournaments for popular games</li>
+                        <li>Automatic tournament registration</li>
+                        <li>Track your rankings and stats</li>
+                        <li>Connect with other gamers</li>
+                        <li>Win prizes and recognition</li>
+                    </ul>
+                </div>
+
+                <!-- Quick Info -->
+                <div class="quick-info">
+                    <h4><i class="fas fa-info-circle"></i> Auto-Registration Feature</h4>
+                    <p>
+                        <strong>Players:</strong> When you register as a Player, you'll be automatically registered to available tournaments! 
+                        No need to manually apply - start competing immediately.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Form Validation
+        function validateForm() {
+            let isValid = true;
+            
+            // Username validation
+            const username = document.getElementById('username');
+            const usernameRegex = /^[a-zA-Z0-9_]{3,20}$/;
+            if (!usernameRegex.test(username.value)) {
+                username.classList.add('error');
+                isValid = false;
+            } else {
+                username.classList.remove('error');
+            }
+            
+            // Email validation (optional)
+            const email = document.getElementById('email');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (email.value && !emailRegex.test(email.value)) {
+                email.classList.add('error');
+                isValid = false;
+            } else {
+                email.classList.remove('error');
+            }
+            
+            // Password validation
+            const password = document.getElementById('password');
+            if (password.value.length < 6) {
+                password.classList.add('error');
+                isValid = false;
+            } else {
+                password.classList.remove('error');
+            }
+            
+            // Confirm password
+            const confirmPassword = document.getElementById('confirmPassword');
+            if (password.value !== confirmPassword.value) {
+                confirmPassword.classList.add('error');
+                isValid = false;
+            } else {
+                confirmPassword.classList.remove('error');
+            }
+            
+            return isValid;
+        }
+        
+        // Password strength checker
+        document.getElementById('password').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthBar = document.getElementById('strengthBar');
+            
+            // Reset
+            strengthBar.className = 'strength-bar';
+            strengthBar.style.width = '0%';
+            
+            if (password.length === 0) return;
+            
+            let strength = 0;
+            
+            // Length
+            if (password.length >= 6) strength += 25;
+            if (password.length >= 10) strength += 25;
+            
+            // Complexity
+            if (/[A-Z]/.test(password)) strength += 25;
+            if (/[0-9]/.test(password)) strength += 25;
+            if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+            
+            // Cap at 100%
+            strength = Math.min(strength, 100);
+            
+            // Update bar
+            strengthBar.style.width = strength + '%';
+            
+            // Set color class
+            if (strength < 40) {
+                strengthBar.className = 'strength-bar strength-weak';
+            } else if (strength < 70) {
+                strengthBar.className = 'strength-bar strength-medium';
+            } else {
+                strengthBar.className = 'strength-bar strength-strong';
+            }
+        });
+        
+        // Real-time validation
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim()) {
+                    this.classList.add('touched');
+                }
+            });
+            
+            input.addEventListener('input', function() {
+                if (this.classList.contains('error')) {
+                    this.classList.remove('error');
+                }
+            });
+        });
+        
+        // Auto-suggest username based on email
+        document.getElementById('email').addEventListener('blur', function() {
+            const usernameInput = document.getElementById('username');
+            const email = this.value;
+            
+            if (email && !usernameInput.value) {
+                // Extract username from email
+                const username = email.split('@')[0];
+                // Clean up username
+                const cleanUsername = username.replace(/[^a-zA-Z0-9_]/g, '_').substring(0, 15);
+                usernameInput.value = cleanUsername;
+                
+                // Trigger password strength check
+                document.getElementById('password').dispatchEvent(new Event('input'));
+            }
+        });
+        
+        // Game selection limits
+        const gameCheckboxes = document.querySelectorAll('input[name="game_preferences"]');
+        gameCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const checkedCount = document.querySelectorAll('input[name="game_preferences"]:checked').length;
+                if (checkedCount > 5) {
+                    this.checked = false;
+                    alert('Please select up to 5 favorite games.');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

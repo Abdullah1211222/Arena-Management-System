@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ad Analytics - ARENA</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <i class="fas fa-trophy logo-icon"></i>
+                <span>ARENA Analytics</span>
+            </a>
+            <div class="nav-links">
+                <a href="/ads" class="btn"><i class="fas fa-arrow-left"></i> Back to Ads</a>
+                <a href="/logout" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="padding-top: 100px;">
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <div>
+                    <h1 style="margin: 0 0 10px 0;">{{ ad.title }}</h1>
+                    <span class="badge {% if ad.is_active %}badge-success{% else %}badge-danger{% endif %}">
+                        {% if ad.is_active %}Active{% else %}Inactive{% endif %}
+                    </span>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 2rem; font-weight: 800;">{{ "%.2f"|format(ctr) }}%</div>
+                    <div style="color: var(--gray);">Click-Through Rate</div>
+                </div>
+            </div>
+
+            <!-- Performance Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number">{{ "{:,}".format(ad.impressions) }}</div>
+                    <div>Impressions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">{{ "{:,}".format(ad.clicks) }}</div>
+                    <div>Clicks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${{ "%.2f"|format(ad.budget) }}</div>
+                    <div>Budget</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${{ "%.4f"|format(ad.budget / ad.clicks if ad.clicks > 0 else 0) }}</div>
+                    <div>Cost Per Click</div>
+                </div>
+            </div>
+
+            <!-- Ad Details -->
+            <div style="margin: 40px 0;">
+                <h3>Ad Details</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 20px;">
+                    <div class="info-item">
+                        <i class="fas fa-bullseye"></i>
+                        <div>
+                            <strong>Category</strong>
+                            <div>{{ ad.category|replace('_', ' ')|title }}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <strong>Position</strong>
+                            <div>{{ ad.position|replace('_', ' ')|title }}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-calendar"></i>
+                        <div>
+                            <strong>Created</strong>
+                            <div>{{ ad.created_at[:10] }}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-gamepad"></i>
+                        <div>
+                            <strong>Target Games</strong>
+                            <div>{{ ad.target_games or 'All Games' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Click History -->
+            <div style="margin-top: 40px;">
+                <h3>Recent Clicks</h3>
+                {% if clicks %}
+                <div style="background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; margin-top: 20px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background: rgba(255,255,255,0.1);">
+                                <th style="padding: 15px; text-align: left;">User</th>
+                                <th style="padding: 15px; text-align: left;">Clicked At</th>
+                                <th style="padding: 15px; text-align: left;">IP Info</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for click in clicks[:10] %}
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                                <td style="padding: 15px;">
+                                    {% if click.username %}
+                                    {{ click.username }}
+                                    {% else %}
+                                    <span style="color: var(--gray);">Anonymous</span>
+                                    {% endif %}
+                                </td>
+                                <td style="padding: 15px;">{{ click.clicked_at }}</td>
+                                <td style="padding: 15px;">
+                                    <span style="color: var(--gray); font-size: 0.9rem;">
+                                        {{ click.clicked_at|replace(' ', 'T') }} UTC
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state" style="padding: 40px 20px;">
+                    <i class="fas fa-mouse-pointer empty-state-icon"></i>
+                    <h3>No Clicks Yet</h3>
+                    <p>Your ad hasn't received any clicks yet.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Ad Preview -->
+            <div style="margin-top: 40px;">
+                <h3>Ad Preview</h3>
+                <div style="max-width: 300px; margin: 20px auto; padding: 20px; border: 2px dashed var(--primary); border-radius: 10px;">
+                    <div style="text-align: center;">
+                        <strong>{{ ad.title }}</strong>
+                        <p style="color: var(--gray); margin: 10px 0; font-size: 0.9rem;">
+                            {{ ad.description[:100] }}{% if ad.description|length > 100 %}...{% endif %}
+                        </p>
+                        <a href="{{ ad.redirect_url }}" target="_blank" class="btn btn-primary">
+                            <i class="fas fa-external-link-alt"></i> Visit Website
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
